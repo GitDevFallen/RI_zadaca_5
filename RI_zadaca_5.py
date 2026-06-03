@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import matplotlib.pyplot as plt
+import numpy as np
 
 from sklearn.datasets import fetch_california_housing
 from sklearn.model_selection import train_test_split
@@ -65,6 +67,26 @@ for epoch in range(num_epochs):
     if (epoch+1) % 10 == 0:
         print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
 
+# Vizualizacija rezultata
+
+loss_history = []
+
+for epoch in range(num_epochs):
+
+    model.train()
+
+    predictions = model(X_train_tensor)
+    loss = criterion(predictions, y_train_tensor)
+
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    loss_history.append(loss.item())
+
+    if (epoch + 1) % 10 == 0:
+        print(f"Epoch {num_epochs+1}: Loss = {loss.item():.4f}")
+
 # Evaluacija modela
 model.eval()
 with torch.no_grad():
@@ -79,3 +101,13 @@ with torch.no_grad():
     print(f'MSE: {mse:.4f}')
     print(f'MAE: {mae:.4f}')
     print(f'R^2 Score: {r2:.4f}')
+
+# Grafikon gubitka tijekom treninga
+plt.figure(figsize=(8, 5))
+plt.plot(loss_history, label='Trening gubitak')
+plt.xlabel('Epoch')
+plt.ylabel('MSE Loss')
+plt.title('Promjena gubitka tijekom treninga')
+plt.legend()
+plt.grid(True)
+plt.show()
