@@ -15,7 +15,7 @@ X = housing.data
 y = housing.target
 
 # Podjela na trening i test skupove
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 # Standardizacija podataka
 scaler = StandardScaler()
@@ -51,6 +51,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Trening modela
 num_epochs = 100
+loss_history = []
 
 for epoch in range(num_epochs):
     model.train()
@@ -63,35 +64,16 @@ for epoch in range(num_epochs):
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
+    loss_history.append(loss.item())
     
     if (epoch+1) % 10 == 0:
         print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
 
-# Vizualizacija rezultata
-
-loss_history = []
-
-for epoch in range(num_epochs):
-
-    model.train()
-
-    predictions = model(X_train_tensor)
-    loss = criterion(predictions, y_train_tensor)
-
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-
-    loss_history.append(loss.item())
-
-    if (epoch + 1) % 10 == 0:
-        print(f"Epoch {num_epochs+1}: Loss = {loss.item():.4f}")
-
 # Evaluacija modela
 model.eval()
 with torch.no_grad():
-    y_predictions = model(X_test_tensor).squeeze().numpy()
-    y_test_np = y_test_tensor.squeeze().numpy()
+    y_predictions = model(X_test_tensor).numpy()
+    y_test_np = y_test_tensor.numpy()
     
     mse = mean_squared_error(y_test_np, y_predictions)
     mae = mean_absolute_error(y_test_np, y_predictions)
